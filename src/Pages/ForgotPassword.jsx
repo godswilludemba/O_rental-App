@@ -32,7 +32,7 @@ export default function ForgotPassword() {
               id="email"
               value={email}
               onChange={onChange}
-              placeHolder="E-mail Address"
+              placeholder="E-mail Address"
               className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
             />
 

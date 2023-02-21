@@ -41,7 +41,7 @@ export default function SignIn() {
               id="email"
               value={email}
               onChange={onChange}
-              placeHolder="E-mail Address"
+              placeholder="E-mail Address"
               className="mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
             />
             <div className="relative mb-6">
@@ -50,7 +50,7 @@ export default function SignIn() {
                 id="password"
                 value={password}
                 onChange={onChange}
-                placeHolder="Password"
+                placeholder="Password"
                 className="w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
               />
               {showPassword ? (

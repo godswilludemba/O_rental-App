@@ -10,7 +10,7 @@ export default function Header() {
     }
   }
   return (
-    <div className="bg-orange-300 border-b shadow-sm sticky top-0 z-50">
+    <div className="bg-blue-600 border-b shadow-sm sticky top-0 z-50">
       <header className="flex justify-between items-center px-3 max-w-7xl mx-auto">
         <div>
           <img
