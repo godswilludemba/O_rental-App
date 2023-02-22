@@ -32,7 +32,7 @@ export default function CreateListing() {
   return (
     <main className="max-w-md px-2 mx-auto">
       <h1 className="text-3xl text-center mt-6 font-bold">Create Listings</h1>
-      <form>
+      <form className=" bg-orange-50 p-8 shadow-lg">
         <p className="text-lg mt-6 font-semi">Sell / Rent</p>
         <div className="flex">
           <button
