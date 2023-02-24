@@ -9,9 +9,14 @@ import {
 } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { v4 as uuidv4 } from "uuid";
-import { addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  docRef,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../firebase.js";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateListing() {
   const navigate = useNavigate();
@@ -174,21 +179,23 @@ export default function CreateListing() {
       setLoading(false);
       toast.error("images not uploading");
     });
+    //console.log(imgUrls);
 
     const formDataCopy = {
       ...formData,
       imgUrls,
       geolocation,
       timestamp: serverTimestamp(),
+      userRef: auth.currentUser.uid,
     };
     delete formDataCopy.images;
     !formDataCopy.offer && delete formDataCopy.discountedPrice;
     delete formDataCopy.latitude;
-    delete formDataCopy.longitutde;
+    delete formDataCopy.longitude;
     const docRef = await addDoc(collection(db, "listings"), formDataCopy);
     setLoading(false);
     toast.success("listing created");
-    navigate(`/category${formDataCopy.type}/${docRef.id}`);
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`);
   }
 
   if (loading) {
