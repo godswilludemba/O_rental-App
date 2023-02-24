@@ -9,12 +9,7 @@ import {
 } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { v4 as uuidv4 } from "uuid";
-import {
-  addDoc,
-  collection,
-  docRef,
-  serverTimestamp,
-} from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase.js";
 import { useNavigate } from "react-router-dom";
 
@@ -113,6 +108,7 @@ export default function CreateListing() {
       // );
       // const data = await response.json();
       // console.log(data);
+
       const response = await fetch(
         "https://ipinfo.io/json?token=c06cdf45f24ba8"
       );
