@@ -1,6 +1,23 @@
 import React, { useState } from "react";
+import Spinner from "../Components/Spinner";
+import { toast } from "react-toastify";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { getAuth } from "firebase/auth";
+import { v4 as uuidv4 } from "uuid";
+import { addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase.js";
+import { useNavigate } from "react-router";
 
 export default function CreateListing() {
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const [geolocationEnabled, setGeolocationEnabled] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: "rent",
     name: "",
@@ -13,6 +30,9 @@ export default function CreateListing() {
     offer: false,
     regularPrice: 0,
     discountedPrice: 0,
+    latitude: 0,
+    longitude: 0,
+    images: {},
   });
 
   const {
@@ -27,12 +47,158 @@ export default function CreateListing() {
     offer,
     regularPrice,
     discountedPrice,
+    latitude,
+    longitude,
+    images,
   } = formData;
-  function onChange() {}
+
+  // onChange function start here
+  function onChange(e) {
+    let boolean = null;
+    if (e.target.value === "true") {
+      boolean = true;
+    }
+
+    if (e.target.value === "false") {
+      boolean = false;
+    }
+
+    //this is for files
+    if (e.target.file) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: e.target.files,
+      }));
+    }
+
+    //this is for text/boolean/number
+    if (!e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.id]: boolean ?? e.target.value,
+      }));
+    }
+  }
+
+  //onSubmit function start here
+  async function onSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+
+    if (+discountedPrice >= +regularPrice) {
+      setLoading(false);
+      toast.error("Discounted price needs to be less than regular price");
+      return;
+    }
+    if (images.length > 6) {
+      setLoading(false);
+      toast.error("maximum 6 images are allowed");
+      return;
+    }
+
+    //enable geolocation
+    let geolocation = {};
+    let location;
+
+    if (geolocationEnabled) {
+      //c06cdf45f24ba8
+      //https://ipinfo.io/json?token=mytoken
+      // const response = await fetch(
+      //   `https://maps.googleapis.com/maps/api/api/geocode/json?address={address}&key=$(proces.env.REACT_APP_GEOCODE_API_KEY)`
+      // );
+      // const data = await response.json();
+      // console.log(data);
+      const response = await fetch(
+        "https://ipinfo.io/json?token=c06cdf45f24ba8"
+      );
+      //let response = await fetch(url);
+      const data = await response.json();
+      console.log(data);
+      geolocation.lat = data.result[0]?.geometry.location.lat ?? 0;
+      geolocation.lng = data.result[0]?.geometry.location.lng ?? 0;
+
+      location = data.status === "ZERO_RESULT" && undefined;
+
+      if (location === undefined) {
+        setLoading(false);
+        toast.error("please enter a correct address");
+        return;
+      }
+    } else {
+      geolocation.lat = latitude;
+      geolocation.lat = longitude;
+    }
+
+    async function storeImage(image) {
+      return new Promise((resolve, reject) => {
+        const storage = getStorage();
+        const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
+        const storageRef = ref(storage, filename);
+        const uploadTask = uploadBytesResumable(storageRef, image);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            // Observe state change events such as progress, pause, and resume
+            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log("Upload is " + progress + "% done");
+            switch (snapshot.state) {
+              case "paused":
+                console.log("Upload is paused");
+                break;
+              case "running":
+                console.log("Upload is running");
+                break;
+              default:
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+            reject(error);
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              resolve(downloadURL);
+            });
+          }
+        );
+      });
+    }
+    const imgUrls = await Promise.all(
+      [...images].map((image) => storeImage(image))
+    ).catch((error) => {
+      setLoading(false);
+      toast.error("images not uploading");
+    });
+
+    const formDataCopy = {
+      ...formData,
+      imgUrls,
+      geolocation,
+      timestamp: serverTimestamp(),
+    };
+    delete formDataCopy.images;
+    !formDataCopy.offer && delete formDataCopy.discountedPrice;
+    delete formDataCopy.latitude;
+    delete formDataCopy.longitutde;
+    const docRef = await addDoc(collection(db, "listings"), formDataCopy);
+    setLoading(false);
+    toast.success("listing created");
+    navigate(`/category${formDataCopy.type}/${docRef.id}`);
+  }
+
+  if (loading) {
+    return <Spinner />;
+  }
+
   return (
     <main className="max-w-md px-2 mx-auto">
       <h1 className="text-3xl text-center mt-6 font-bold">Create Listings</h1>
-      <form className=" bg-orange-50 p-8 shadow-lg">
+      <form onSubmit={onSubmit} className=" bg-orange-50 p-6 shadow-lg">
         <p className="text-lg mt-6 font-semi">Sell / Rent</p>
         <div className="flex">
           <button
@@ -53,7 +219,7 @@ export default function CreateListing() {
           <button
             type="button"
             id="type"
-            value="sale"
+            value="rent"
             onClick={onChange}
             className={`ml-3 px-7 py-3 font-medium text-sm uppercase shadow-md rounded hover:shadow-lg 
             focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
@@ -181,6 +347,41 @@ export default function CreateListing() {
           className="w-full px-4 py-2 text-xl text-red-700 bg-white border border-gray-400 rounded transition duration-150 ease-in-out
            focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
         />
+        {!geolocationEnabled && (
+          <div className=" flex space-x-6 justify-start mb-6">
+            <div className="">
+              <p className="text-lg font-semibold">Latitude</p>
+              <input
+                type="number"
+                id="latitude"
+                value={latitude}
+                onChange={onChange}
+                min="-90"
+                max="90"
+                required
+                className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 
+                ease-in-out focus:bg-white focus:text-gray-700 
+                focus:border-slate-600 text-center"
+              />
+            </div>
+
+            <div className="">
+              <p className="text-lg font-semibold">Longitude</p>
+              <input
+                type="number"
+                id="longitude"
+                value={longitude}
+                onChange={onChange}
+                min="-180"
+                max="180"
+                required
+                className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 
+                ease-in-out focus:bg-white focus:text-gray-700 
+                focus:border-slate-600 text-center"
+              />
+            </div>
+          </div>
+        )}
 
         <p className="text-lg font-semibold ">Description</p>
         <textarea
