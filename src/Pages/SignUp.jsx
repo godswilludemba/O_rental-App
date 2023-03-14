@@ -32,6 +32,7 @@ export default function SignUp() {
   async function onSubmit(e) {
     e.preventDefault();
 
+    //authenticate the user
     try {
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(
@@ -48,7 +49,7 @@ export default function SignUp() {
       formDataCopy.timestamp = serverTimestamp();
 
       await setDoc(doc(db, "users", user.uid), formDataCopy);
-      toast.success("Sign up was successful")
+      toast.success("Sign up was successful");
       navigate("/");
     } catch (error) {
       toast.error("Some Thing went wrong with the Registration");

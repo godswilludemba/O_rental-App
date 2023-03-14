@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 export default function CreateListing() {
   const navigate = useNavigate();
   const auth = getAuth();
-  const [geolocationEnabled, setGeolocationEnabled] = useState(true);
+  const [geolocationEnabled, setGeolocationEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: "rent",
@@ -64,7 +64,7 @@ export default function CreateListing() {
     }
 
     //this is for files
-    if (e.target.file) {
+    if (e.target.files) {
       setFormData((prevState) => ({
         ...prevState,
         images: e.target.files,
@@ -103,18 +103,18 @@ export default function CreateListing() {
     if (geolocationEnabled) {
       //c06cdf45f24ba8
       //https://ipinfo.io/json?token=mytoken
-      // const response = await fetch(
-      //   `https://maps.googleapis.com/maps/api/api/geocode/json?address={address}&key=$(proces.env.REACT_APP_GEOCODE_API_KEY)`
-      // );
-      // const data = await response.json();
-      // console.log(data);
-
       const response = await fetch(
-        "https://ipinfo.io/json?token=c06cdf45f24ba8"
+        `https://maps.googleapis.com/maps/api/api/geocode/json?address={address}&key=$(proces.env.REACT_APP_GEOCODE_API_KEY)`
       );
-      //let response = await fetch(url);
       const data = await response.json();
       console.log(data);
+
+      // const response = await fetch(
+      //   "https://ipinfo.io/json?token=c06cdf45f24ba8"
+      // );
+      //let response = await fetch(url);
+      // const data = await response.json();
+      // console.log(data);
       geolocation.lat = data.result[0]?.geometry.location.lat ?? 0;
       geolocation.lng = data.result[0]?.geometry.location.lng ?? 0;
 
@@ -130,6 +130,7 @@ export default function CreateListing() {
       geolocation.lat = longitude;
     }
 
+    //store the collected list items/Data of images
     async function storeImage(image) {
       return new Promise((resolve, reject) => {
         const storage = getStorage();
@@ -137,6 +138,7 @@ export default function CreateListing() {
         const storageRef = ref(storage, filename);
         const uploadTask = uploadBytesResumable(storageRef, image);
 
+        //track the state of the stored image through upload sequence
         uploadTask.on(
           "state_changed",
           (snapshot) => {
@@ -169,6 +171,7 @@ export default function CreateListing() {
         );
       });
     }
+    //loop through the image and throw an errow if not in existence
     const imgUrls = await Promise.all(
       [...images].map((image) => storeImage(image))
     ).catch((error) => {
@@ -177,6 +180,7 @@ export default function CreateListing() {
     });
     //console.log(imgUrls);
 
+    //other wise add the image to thee form data
     const formDataCopy = {
       ...formData,
       imgUrls,
@@ -188,6 +192,7 @@ export default function CreateListing() {
     !formDataCopy.offer && delete formDataCopy.discountedPrice;
     delete formDataCopy.latitude;
     delete formDataCopy.longitude;
+    //add to db
     const docRef = await addDoc(collection(db, "listings"), formDataCopy);
     setLoading(false);
     toast.success("listing created");
@@ -443,10 +448,9 @@ export default function CreateListing() {
                 border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white
                 focus:border-slate-600 text-center"
               />
-
               {type === "rent" && (
                 <div className="">
-                  <p className="text-md w-full whitespace-nowrap">$ / Month</p>
+                  <p className="text-md w-full whitespace-nowrap">$/Month</p>
                 </div>
               )}
             </div>
@@ -471,11 +475,9 @@ export default function CreateListing() {
                 focus:border-slate-600 text-center"
                 />
 
-                {type === "rent" && (
+                {type === "sale" && (
                   <div className="">
-                    <p className="text-md w-full whitespace-nowrap">
-                      $ / Month
-                    </p>
+                    <p className="text-md w-full whitespace-nowrap">$/Month</p>
                   </div>
                 )}
               </div>
