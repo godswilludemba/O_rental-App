@@ -66,7 +66,7 @@ export default function ListingItem({ listing, id, onDelete, onEdit }) {
       {onDelete && (
         <BsFillTrashFill
           className="absolute bottom-2 right-2 h-[14px]
-      cursor-pointer text-red-600"
+         cursor-pointer text-red-600"
           onClick={() => onDelete(listing.id)}
         />
       )}
@@ -74,7 +74,7 @@ export default function ListingItem({ listing, id, onDelete, onEdit }) {
       {onEdit && (
         <AiFillEdit
           className="absolute bottom-2 right-7 h-4
-      cursor-pointer text-blue-400"
+          cursor-pointer text-blue-400"
           onClick={() => onEdit(listing.id)}
         />
       )}
