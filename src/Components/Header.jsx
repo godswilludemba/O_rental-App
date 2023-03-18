@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import logo from "../Assets/image/IMG-logo.jpg";
 
 export default function Header() {
   const [pageState, setPageStage] = useState("Sign in");
@@ -28,9 +29,9 @@ export default function Header() {
       <header className="flex justify-between items-center px-3 max-w-7xl mx-auto">
         <div>
           <img
-            src="https://www.tolet.com/assets/images/logo_tolet.png"
+            src={logo}
             alt="Logo"
-            className="h-20 cursor-pointer"
+            className="m-1 h-20 w-[100px] cursor-pointer bg-slate-300 rounded-full"
             onClick={() => navigate("/")}
           />
         </div>
