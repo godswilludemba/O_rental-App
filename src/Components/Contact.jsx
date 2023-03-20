@@ -27,8 +27,8 @@ export default function Contact({ userRef, listing }) {
   return (
     <>
       {landlord !== null && (
-        <div>
-          <p>
+        <div className="flex flex-col w-full ">
+          <p className="">
             Contact{landlord.email} for the {listing.name.toLowerCase()}
           </p>
           <div>
@@ -40,7 +40,11 @@ export default function Contact({ userRef, listing }) {
               onChange={onChange}
             ></textarea>
           </div>
-          a
+          <a
+            href={`mailto:${landlord.email}?Subject=${listing.name}&body=${massage}`}
+          >
+            <button>Send Message</button>
+          </a>
         </div>
       )}
     </>

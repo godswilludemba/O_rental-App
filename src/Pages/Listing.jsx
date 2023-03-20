@@ -136,7 +136,7 @@ export default function Listing() {
             <span className="font-semibold ">Description - </span>
             {listing.description}
           </p>
-          <ul className="flex items-center space-x-2 text-sm font-semibold sm:space-x-10">
+          <ul className="flex items-center space-x-2 text-sm font-semibold sm:space-x-10 mb-4">
             <li className=" flex items-center whitespace-nowrap">
               <FaBed className="text-lg mr-1" />
               {+listing.bedrooms > 1 ? `${listing.bedrooms}Beds` : "1 Bed"}
