@@ -19,12 +19,16 @@ import {
   FaParking,
   FaChair,
 } from "react-icons/fa";
+import { getAuth } from "firebase/auth";
+import Contact from "../Components/Contact";
 
 export default function Listing() {
+  const auth = getAuth();
   const params = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [contactLandlord, setContactLandlord] = useState(false);
   swiperCore.use([Autoplay, Navigation, Pagination]);
 
   useEffect(() => {
@@ -118,15 +122,15 @@ export default function Listing() {
                 className="w-full max-w-[200px] bg-green-800 rounded-md p-1
                text-white text-center font-semibold shadow-md"
               >
-                ${listing.regularPrice - listing.discountedPrice} discount
+                ${listing.regularPrice - listing.discountedPrice} Discount
               </p>
             )}
-            <p
+            <button
               className="w-full max-w-[200px] bg-yellow-600 rounded-md p-1
                text-white text-center font-semibold shadow-md cursor-pointer"
             >
               Inspection ?
-            </p>
+            </button>
           </div>
           <p className="mt-3 mb-3">
             <span className="font-semibold ">Description - </span>
@@ -153,6 +157,22 @@ export default function Listing() {
               {listing.furnished ? "Furnished" : "Not Furnished"}
             </li>
           </ul>
+
+          {listing.userRef !== auth.currentUser?.uid && !contactLandlord && (
+            <div className="mt-6">
+              <button
+                onClick={() => setContactLandlord(true)}
+                className="px-7 py-3 bg-blue-500 text-white font-medium text-sm 
+          uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-600
+          focus:shadow-lg w-full text-center transition duration-150 ese-in-out"
+              >
+                Contact Landlord
+              </button>
+            </div>
+          )}
+          {contactLandlord && (
+            <Contact userRef={listing.userRef} listing={listing} />
+          )}
         </div>
         <div className="bg-orange-200 w-full h-[200px] lg-[400px] z-10 overflow-x-hidden"></div>
       </div>
