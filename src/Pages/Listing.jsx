@@ -70,8 +70,8 @@ export default function Listing() {
         ))}
       </Swiper>
       <div
-        className=" fixed top-[15%] right-[3%] z-10 bg-orange-100 cursor-pointer border-2 border-gray-400 rounded-full 
-      w-9 h-9 flex justify-center items-center"
+        className=" fixed top-[15%] right-[3%] z-10 bg-orange-100 cursor-pointer
+         border-2 border-gray-400 rounded-full   w-9 h-9 flex justify-center items-center"
         onClick={() => {
           navigator.clipboard.writeText(window.location.href);
           setShareLinkCopied(true);
@@ -94,7 +94,7 @@ export default function Listing() {
         className="m-4 flex flex-col md:flex-row max-w-6xl lg:mx-auto p-4 rounded-lg 
       shadow-lg bg-white lg:space-x-5"
       >
-        <div className="w-full h-[200px] lg-[400px]">
+        <div className="w-full">
           <p className="text-2xl font-bold mb-3 text-blue-900">
             {listing.name} - $
             {listing.offer
@@ -136,7 +136,7 @@ export default function Listing() {
             <span className="font-semibold ">Description - </span>
             {listing.description}
           </p>
-          <ul className="flex items-center space-x-2 text-sm font-semibold sm:space-x-10 mb-4">
+          <ul className="flex items-center space-x-2 text-sm font-semibold sm:space-x-10 mb-6">
             <li className=" flex items-center whitespace-nowrap">
               <FaBed className="text-lg mr-1" />
               {+listing.bedrooms > 1 ? `${listing.bedrooms}Beds` : "1 Bed"}
