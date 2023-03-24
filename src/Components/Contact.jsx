@@ -5,7 +5,7 @@ import { db } from "../firebase";
 
 export default function Contact({ userRef, listing }) {
   const [landlord, setLandlord] = useState(null);
-  const [massage, setMassage] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     async function getLandlord() {
@@ -21,7 +21,7 @@ export default function Contact({ userRef, listing }) {
   }, [userRef]);
 
   function onChange(e) {
-    setMassage(e.target.value);
+    setMessage(e.target.value);
   }
 
   return (
@@ -33,10 +33,10 @@ export default function Contact({ userRef, listing }) {
           </p>
           <div className="mt-3 mb-4">
             <textarea
-              name="massage"
+              name="message"
               id="message"
               rows="2"
-              value={massage}
+              value={message}
               onChange={onChange}
               className="w-full px-4 py-2 text-xl text-gray-700 bg-white
               border border-gray-300 rounded transition duration-150 ease- in-out focus:text-gray-700
@@ -44,14 +44,13 @@ export default function Contact({ userRef, listing }) {
             ></textarea>
           </div>
           <a
-            href={`mailto:${landlord.email}?Subject=${listing.name}&body=${massage}`}
+            href={`mailto:${landlord.email}?Subject=${listing.name}&body=${message}`}
           >
             <button
               className="px-7 py-3 bg-blue-500 text-white rounded uppercase
             shadow-md  hover:bg-blue-700 hover:shadow-lg  focus:bg-blue-700 focus:shadow-lg
             active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out
             w-full text-center mb-6"
-              type="button"
             >
               Send Message
             </button>
